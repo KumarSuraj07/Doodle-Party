@@ -126,7 +126,7 @@ const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",
 function log(h,cls){const l=$("#log"),d=document.createElement("div");if(cls)d.className=cls;d.innerHTML=h;l.appendChild(d);l.scrollTop=1e9}
 const nameOf=id=>(players.find(p=>p.id===id)||{}).name||"Someone";
 const amDrawer=()=>S.drawer===me.id&&(S.phase==="choose"||S.phase==="draw");
-const hostId=()=>(S.phase==="lobby"||S.phase==="over")?(players.map(p=>p.id).sort()[0]||me.id):S.hostId;
+const hostId=()=>S.hostId||(players.map(p=>p.id).sort()[0]||me.id);
 const isHost=()=>hostId()===me.id;
 
 function connect(name){return new Promise((res,rej)=>{
@@ -149,20 +149,13 @@ const pickAv=()=>$("#avs").querySelectorAll("button").forEach(b=>b.classList.tog
 $("#avs").onclick=e=>{const a=e.target.dataset&&e.target.dataset.a;if(a){me.av=a;pickAv()}};pickAv();
 if(location.hash.length>1)$("#code").value=location.hash.slice(1,7);
 
-// local-first wrapper: my own messages are handled instantly, no echo needed
-function wrap(raw){const H={},reg={};
- const fire=(t,d)=>(H[t]||[]).forEach(f=>f({topic:t,data:d}));
- return{emit(t,d){fire(t,d);return raw.emit(t,d)},
-  on(t,f){(H[t]=H[t]||[]).push(f);if(!reg[t]){reg[t]=1;raw.on(t,m=>{if(m.isMe&&m.sameTab!==false)return;fire(t,m.data)})}},
-  presence:p=>raw.presence(p),onPeers:f=>raw.onPeers(f)}}
-
 // ---------- join ----------
 $("#go").onclick=async()=>{
  me.name=$("#name").value.trim().slice(0,14);if(!me.name)return $("#err").textContent="Pick a name first.";
  const typed=$("#code").value.trim().toLowerCase().replace(/[^a-z0-9]/g,"");
  code=typed||Math.random().toString(36).slice(2,6);
  $("#go").disabled=true;$("#err").textContent="Connecting…";
- try{R=wrap(await connect("dp-"+code))}
+ try{R=await connect("dp-"+code)}
  catch(e){$("#go").disabled=false;return $("#err").textContent="Couldn’t connect. Try again."}
  players=[{id:me.id,name:me.name,av:me.av}];
  $("#lobby").classList.add("hide");$("#game").classList.remove("hide");wire();render();
@@ -170,7 +163,7 @@ $("#go").onclick=async()=>{
  setInterval(hostTick,500);
 };
 function wire(){
- R.on("state",m=>{if(isHost())return;const d=m.data;if(d.phase==="choose"||d.drawer!==S.drawer)word="";S=d;S.endsAt=Date.now()+d.left;render()});
+ R.on("state",m=>{if(isHost())return;const d=m.data;if(d.phase==="choose"||d.drawer!==S.drawer)word="";S=d;S.endsAt=Date.now()+Math.max(0,d.left||0);render()});
  R.on("word",m=>{if(m.data.to!==me.id)return;if(m.data.opts)showOpts(m.data.opts);else{word=m.data.w;render()}});
  R.on("pick",m=>{if(isHost()&&m.data.id===S.drawer&&S.phase==="choose"&&W.opts.includes(m.data.w))startDraw(m.data.w)});
  R.on("guess",m=>{if(isHost())onGuess(m.data)});
