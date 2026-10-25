@@ -1,0 +1,1 @@
+{"name":"doodle-party","version":"1.0.0","main":"server.js","scripts":{"start":"node server.js","icons":"node generate-icons.js"},"dependencies":{"ws":"^8.18.0"},"devDependencies":{"sharp":"^0.33.5"},"engines":{"node":">=18"}}
