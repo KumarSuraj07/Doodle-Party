@@ -1,169 +1,173 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>Doodle Party</title>
 <link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#4a90d9">
+<meta name="theme-color" content="#1a1a2e">
 <link rel="apple-touch-icon" href="/icons/icon-180.png">
 <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font:14px/1.4 'Segoe UI',Arial,sans-serif;background:#1a1a2e;color:#eee;min-height:100vh}
-button,input,select{font:inherit}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font:14px/1.4 'Segoe UI',Arial,sans-serif;background:#1a1a2e;color:#eee;display:flex;flex-direction:column}
+button,input{font:inherit;color:inherit}
 .hide{display:none!important}
 
-/* ── LOBBY ── */
-#lobby{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:20px;gap:0}
-.logo{font-size:52px;font-weight:900;letter-spacing:-2px;color:#fff;text-shadow:0 4px 0 #1565c0;margin-bottom:4px}
+/* LOBBY */
+#lobby{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;gap:0;overflow-y:auto}
+.logo{font-size:48px;font-weight:900;letter-spacing:-2px;color:#fff;text-shadow:0 4px 0 #1565c0;margin-bottom:4px}
 .logo span{color:#ffd600}
-.tagline{color:#90caf9;margin-bottom:32px;font-size:15px}
-.lcard{background:#16213e;border-radius:16px;padding:28px 32px;width:100%;max-width:420px;box-shadow:0 8px 32px #0008;display:flex;flex-direction:column;gap:12px}
-.lcard h2{font-size:18px;color:#90caf9;margin-bottom:4px}
-.lcard input[type=text]{padding:11px 14px;border:2px solid #2a3a5c;border-radius:10px;background:#0d1b2a;color:#fff;outline:none;width:100%}
-.lcard input[type=text]:focus{border-color:#4a90d9}
+.tagline{color:#90caf9;margin-bottom:24px;font-size:14px}
+.lcard{background:#16213e;border-radius:16px;padding:24px;width:100%;max-width:400px;display:flex;flex-direction:column;gap:10px}
+.lcard h2{font-size:15px;color:#90caf9}
+.lcard input{padding:10px 14px;border:2px solid #2a3a5c;border-radius:10px;background:#0d1b2a;color:#fff;outline:none;width:100%}
+.lcard input:focus{border-color:#4a90d9}
 .lcard input::placeholder{color:#556}
-.avrow{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
-.avrow button{width:38px;height:38px;border-radius:50%;border:2px solid #2a3a5c;background:#0d1b2a;font-size:18px;cursor:pointer;padding:0;transition:.15s}
-.avrow button.on{border-color:#ffd600;background:#1a2a0a;transform:scale(1.15)}
-.divider{display:flex;align-items:center;gap:8px;color:#445;font-size:12px}
-.divider::before,.divider::after{content:'';flex:1;height:1px;background:#2a3a5c}
-.pbtn{padding:13px;border:0;border-radius:10px;background:linear-gradient(135deg,#1565c0,#4a90d9);color:#fff;font-weight:700;font-size:16px;cursor:pointer;transition:.15s;letter-spacing:.5px}
-.pbtn:hover{filter:brightness(1.1)}
-.pbtn:disabled{opacity:.4;cursor:default}
-.pbtn.green{background:linear-gradient(135deg,#2e7d32,#43a047)}
-#lerr{color:#ef5350;font-size:13px;min-height:18px;text-align:center}
+.avrow{display:flex;flex-wrap:wrap;gap:5px;justify-content:center}
+.avrow button{width:36px;height:36px;border-radius:50%;border:2px solid #2a3a5c;background:#0d1b2a;font-size:17px;cursor:pointer;padding:0}
+.avrow button.on{border-color:#ffd600;transform:scale(1.15)}
+.divider{text-align:center;color:#445;font-size:11px;position:relative}
+.divider::before,.divider::after{content:'';position:absolute;top:50%;width:42%;height:1px;background:#2a3a5c}
+.divider::before{left:0}.divider::after{right:0}
+.pbtn{padding:12px;border:0;border-radius:10px;background:linear-gradient(135deg,#2e7d32,#43a047);color:#fff;font-weight:700;font-size:15px;cursor:pointer;width:100%}
+.pbtn:disabled{opacity:.4}
+#lerr{color:#ef5350;font-size:12px;min-height:16px;text-align:center}
 
-/* ── GAME LAYOUT ── */
-#game{display:grid;grid-template-columns:180px 1fr 240px;grid-template-rows:56px 1fr;gap:0;height:100vh;background:#1a1a2e}
-#ghead{grid-column:1/-1;background:#16213e;border-bottom:2px solid #0d1b2a;display:flex;align-items:center;padding:0 14px;gap:16px}
-#ghead .logo2{font-size:22px;font-weight:900;color:#fff;letter-spacing:-1px}
-#ghead .logo2 span{color:#ffd600}
-#rinfo{flex:1;text-align:center;font-weight:700;font-size:15px;color:#90caf9}
-#hint-wrap{flex:2;text-align:center}
-#hint{font-size:22px;letter-spacing:8px;font-weight:900;font-family:monospace;color:#fff;min-height:28px}
-#timer-wrap{display:flex;align-items:center;gap:8px}
-#timer{width:44px;height:44px;border-radius:50%;border:3px solid #4a90d9;display:grid;place-items:center;font-weight:900;font-size:18px;color:#fff;transition:border-color .3s}
+/* GAME */
+#game{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0}
+
+/* HEADER */
+#ghead{background:#16213e;border-bottom:2px solid #0d1b2a;display:flex;align-items:center;padding:0 12px;height:50px;flex:none;gap:10px;overflow:hidden}
+.logo2{font-size:20px;font-weight:900;color:#fff;letter-spacing:-1px;flex:none}
+.logo2 span{color:#ffd600}
+#rinfo{font-weight:700;font-size:13px;color:#90caf9;flex:none;white-space:nowrap}
+#hint-wrap{flex:1;text-align:center;overflow:hidden}
+#hint{font-size:18px;letter-spacing:6px;font-weight:900;font-family:monospace;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#timer{width:38px;height:38px;border-radius:50%;border:3px solid #4a90d9;display:grid;place-items:center;font-weight:900;font-size:16px;color:#fff;flex:none}
 #timer.warn{border-color:#ffd600;color:#ffd600}
 #timer.danger{border-color:#ef5350;color:#ef5350}
 
-/* ── PLAYERS ── */
-#players{background:#16213e;border-right:2px solid #0d1b2a;overflow-y:auto;padding:8px}
-.pl{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:10px;margin-bottom:4px;transition:.2s;position:relative}
-.pl.drawing{background:#1a2a4a;border:1px solid #4a90d9}
-.pl.guessed{background:#1a3a2a;border:1px solid #43a047}
-.pl.drawing::after{content:'✏️';position:absolute;right:6px;font-size:12px}
-.pl.guessed::after{content:'✓';position:absolute;right:8px;color:#43a047;font-weight:900}
-.av{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font-size:16px;flex:none;border:2px solid #2a3a5c}
-.pl-info b{display:block;font-size:13px;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#fff}
-.pl-info small{color:#90caf9;font-size:11px}
-.rank{width:18px;font-size:11px;color:#556;font-weight:700;flex:none}
+/* BODY = players | canvas | chat */
+#gbody{flex:1;display:flex;overflow:hidden;min-height:0}
 
-/* ── CANVAS AREA ── */
-#mid{display:flex;flex-direction:column;background:#1a1a2e;overflow:hidden}
-#stage{position:relative;flex:1;display:flex;align-items:center;justify-content:center;background:#111;overflow:hidden}
-#cv-wrap{position:relative;background:#fff;box-shadow:0 4px 24px #0008}
-canvas{display:block;touch-action:none;cursor:crosshair}
-#ov{position:absolute;inset:0;display:flex;flex-direction:column;gap:12px;align-items:center;justify-content:center;background:rgba(10,10,20,.88);backdrop-filter:blur(4px);text-align:center;padding:20px;z-index:10}
-#ov h2{font-size:26px;font-weight:900;color:#fff;margin-bottom:4px}
-#ov .sub2{color:#90caf9;font-size:14px}
-.word-opts{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:8px}
-.word-btn{padding:12px 22px;border:2px solid #4a90d9;border-radius:10px;background:#0d1b2a;color:#fff;font-size:16px;font-weight:700;cursor:pointer;transition:.15s;letter-spacing:.5px}
-.word-btn:hover{background:#4a90d9;transform:scale(1.05)}
-#tools{background:#16213e;border-top:2px solid #0d1b2a;padding:8px 10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center}
-.colors{display:flex;flex-wrap:wrap;gap:4px;max-width:200px}
-.sw{width:24px;height:24px;border-radius:4px;border:2px solid transparent;cursor:pointer;transition:.1s}
-.sw:hover{transform:scale(1.2)}
+/* PLAYERS */
+#players{width:160px;flex:none;background:#16213e;border-right:2px solid #0d1b2a;overflow-y:auto;padding:6px;display:flex;flex-direction:column;gap:3px}
+.pl{display:flex;align-items:center;gap:6px;padding:6px 7px;border-radius:9px;position:relative;border:1px solid transparent}
+.pl.drawing{background:#1a2a4a;border-color:#4a90d9}
+.pl.guessed{background:#1a3a2a;border-color:#43a047}
+.pl.drawing::after{content:'✏️';position:absolute;right:5px;font-size:11px}
+.pl.guessed::after{content:'✓';position:absolute;right:6px;color:#43a047;font-weight:900;font-size:13px}
+.av{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:14px;flex:none;border:2px solid #2a3a5c}
+.pl-info{min-width:0}
+.pl-info b{display:block;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#fff}
+.pl-info small{color:#90caf9;font-size:10px}
+.rank{width:14px;font-size:10px;color:#556;font-weight:700;flex:none}
+
+/* CANVAS AREA */
+#mid{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+#stage{flex:1;position:relative;background:#111;overflow:hidden;display:flex;align-items:center;justify-content:center}
+#cv-wrap{position:relative;line-height:0}
+canvas{display:block;touch-action:none;cursor:crosshair;user-select:none}
+#ov{position:absolute;inset:0;display:flex;flex-direction:column;gap:10px;align-items:center;justify-content:center;background:rgba(10,10,20,.9);backdrop-filter:blur(4px);text-align:center;padding:16px;z-index:10;overflow-y:auto}
+#ov h2{font-size:22px;font-weight:900;color:#fff}
+#ov .sub2{color:#90caf9;font-size:13px}
+.word-opts{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:6px}
+.word-btn{padding:10px 20px;border:2px solid #4a90d9;border-radius:10px;background:#0d1b2a;color:#fff;font-size:15px;font-weight:700;cursor:pointer}
+.word-btn:hover,.word-btn:active{background:#4a90d9}
+#tools{background:#16213e;border-top:2px solid #0d1b2a;padding:6px 8px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:center;flex:none}
+.colors{display:flex;flex-wrap:wrap;gap:3px;max-width:180px}
+.sw{width:22px;height:22px;border-radius:4px;border:2px solid transparent;cursor:pointer}
 .sw.on{border-color:#fff;transform:scale(1.15)}
-.tsep{width:1px;height:32px;background:#2a3a5c;flex:none}
-.sizes{display:flex;gap:4px;align-items:center}
-.sz{width:32px;height:32px;border-radius:8px;border:2px solid #2a3a5c;background:#0d1b2a;cursor:pointer;display:grid;place-items:center;transition:.1s}
+.tsep{width:1px;height:28px;background:#2a3a5c;flex:none}
+.sizes{display:flex;gap:3px;align-items:center}
+.sz{width:30px;height:30px;border-radius:7px;border:2px solid #2a3a5c;background:#0d1b2a;cursor:pointer;display:grid;place-items:center}
 .sz.on{border-color:#4a90d9}
 .sz span{background:#fff;border-radius:50%;display:block}
-.tbtn{padding:6px 10px;border:2px solid #2a3a5c;border-radius:8px;background:#0d1b2a;color:#ccc;cursor:pointer;font-size:12px;font-weight:600;transition:.1s}
-.tbtn:hover,.tbtn.on{border-color:#4a90d9;color:#fff}
+.tbtn{padding:5px 9px;border:2px solid #2a3a5c;border-radius:7px;background:#0d1b2a;color:#ccc;cursor:pointer;font-size:12px;font-weight:600;white-space:nowrap}
+.tbtn.on,.tbtn:active{border-color:#4a90d9;color:#fff}
 
-/* ── CHAT ── */
-#chat{background:#16213e;border-left:2px solid #0d1b2a;display:flex;flex-direction:column}
-#log{flex:1;overflow-y:auto;padding:8px;display:flex;flex-direction:column;gap:3px;font-size:13px}
-#log .msg-row{padding:4px 6px;border-radius:6px}
-#log .msg-row b{color:#90caf9}
-#log .msg-row.me b{color:#ffd600}
-#log .sys{color:#556;font-style:italic;padding:2px 6px;font-size:12px}
-#log .win{background:#1a3a2a;color:#69f0ae;font-weight:700;padding:5px 8px;border-radius:8px;border-left:3px solid #43a047}
-#log .close{background:#2a2a1a;color:#ffd600;padding:4px 6px;border-radius:6px;font-size:12px}
-#chat-foot{padding:8px;border-top:2px solid #0d1b2a;display:flex;gap:6px}
-#msg{flex:1;padding:9px 12px;border:2px solid #2a3a5c;border-radius:10px;background:#0d1b2a;color:#fff;outline:none}
+/* CHAT */
+#chat{width:220px;flex:none;background:#16213e;border-left:2px solid #0d1b2a;display:flex;flex-direction:column;overflow:hidden}
+#log{flex:1;overflow-y:auto;padding:6px;display:flex;flex-direction:column;gap:2px;font-size:12px;min-height:0}
+.msg-row{padding:3px 5px;border-radius:5px;word-break:break-word}
+.msg-row b{color:#90caf9}
+.msg-row.me b{color:#ffd600}
+.sys{color:#556;font-style:italic;padding:2px 5px;font-size:11px}
+.win{background:#1a3a2a;color:#69f0ae;font-weight:700;padding:4px 7px;border-radius:7px;border-left:3px solid #43a047}
+.close-msg{background:#2a2a1a;color:#ffd600;padding:3px 5px;border-radius:5px;font-size:11px}
+#chat-foot{padding:6px;border-top:2px solid #0d1b2a;display:flex;gap:5px;flex:none}
+#msg{flex:1;padding:8px 10px;border:2px solid #2a3a5c;border-radius:9px;background:#0d1b2a;color:#fff;outline:none;font-size:13px}
 #msg:focus{border-color:#4a90d9}
 #msg:disabled{opacity:.5}
-#send{padding:9px 14px;border:0;border-radius:10px;background:#4a90d9;color:#fff;font-weight:700;cursor:pointer}
-#send:hover{background:#1565c0}
+#send{padding:8px 12px;border:0;border-radius:9px;background:#4a90d9;color:#fff;font-weight:700;cursor:pointer;font-size:13px}
 
-/* ── OVERLAY SCREENS ── */
-.score-row{display:flex;align-items:center;gap:10px;padding:8px 14px;background:#0d1b2a;border-radius:10px;width:100%;max-width:320px}
-.score-row .pos{width:24px;font-weight:900;color:#ffd600}
-.score-row .sav{font-size:20px}
-.score-row .sname{flex:1;font-weight:700}
-.score-row .spts{color:#90caf9;font-weight:700}
+/* SCOREBOARD overlay */
+.score-row{display:flex;align-items:center;gap:8px;padding:7px 12px;background:#0d1b2a;border-radius:9px;width:100%;max-width:300px}
 .score-row.first{background:#1a2a0a;border:1px solid #ffd600}
+.score-row .pos{width:22px;font-weight:900;color:#ffd600;font-size:13px}
+.score-row .sav{font-size:18px}
+.score-row .sname{flex:1;font-weight:700;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.score-row .spts{color:#90caf9;font-weight:700;font-size:13px}
 
-/* ── RESPONSIVE ── */
-@media(max-width:700px){
-  #game{display:flex;flex-direction:column;height:auto;min-height:100vh}
-  #ghead{flex:none;grid-column:unset}
-  #players{flex-direction:row;overflow-x:auto;overflow-y:hidden;max-height:64px;border-right:0;border-bottom:2px solid #0d1b2a;padding:6px;gap:6px}
-  .pl{flex:none;min-width:110px}
+/* LOBBY OVERLAY settings */
+.ov-settings{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:center}
+.ov-settings span{color:#90caf9;font-size:12px}
+#cw-input{padding:7px 10px;border:2px solid #2a3a5c;border-radius:8px;background:#0d1b2a;color:#fff;outline:none;width:100%;max-width:320px;font-size:12px}
+#cw-input:focus{border-color:#4a90d9}
+#st-btn{padding:11px 28px;border:0;border-radius:10px;background:linear-gradient(135deg,#2e7d32,#43a047);color:#fff;font-weight:700;font-size:15px;cursor:pointer}
+
+/* MOBILE */
+@media(max-width:600px){
+  #gbody{flex-direction:column}
+  #players{width:100%;flex-direction:row;overflow-x:auto;overflow-y:hidden;height:58px;border-right:0;border-bottom:2px solid #0d1b2a;padding:5px;gap:5px;flex:none}
+  .pl{flex:none;min-width:100px}
   .rank{display:none}
-  #mid{flex:none}
-  #stage{height:auto;background:#111}
-  #cv-wrap{width:100%!important}
-  canvas{width:100%!important;height:auto!important}
-  #tools{flex-wrap:wrap}
-  .colors{max-width:100%}
-  #chat{flex:1;min-height:220px;border-left:0;border-top:2px solid #0d1b2a}
+  #mid{flex:1;min-height:0}
+  #stage{flex:1}
+  #chat{width:100%;height:180px;border-left:0;border-top:2px solid #0d1b2a;flex:none}
+  #hint{font-size:14px;letter-spacing:3px}
+  .logo2{font-size:17px}
+  #rinfo{font-size:11px}
 }
 </style>
 </head><body>
 
-<!-- LOBBY -->
 <div id="lobby">
   <div class="logo">Doodle<span>!</span></div>
   <div class="tagline">Draw • Guess • Laugh with friends</div>
   <div class="lcard">
     <h2>Your name</h2>
-    <input type="text" id="name" placeholder="Enter your name…" maxlength="14" autocomplete="off">
+    <input id="name" type="text" placeholder="Enter your name…" maxlength="14" autocomplete="off">
     <div class="avrow" id="avs"></div>
     <div class="divider">room</div>
-    <input type="text" id="code" placeholder="Room code (leave empty to create)" maxlength="6" autocomplete="off">
-    <button class="pbtn green" id="go">▶ Play</button>
+    <input id="code" type="text" placeholder="Room code (empty = create new)" maxlength="6" autocomplete="off">
+    <button class="pbtn" id="go">▶ Play</button>
     <div id="lerr"></div>
   </div>
 </div>
 
-<!-- GAME -->
 <div id="game" class="hide">
-  <!-- header -->
   <div id="ghead">
     <div class="logo2">Doodle<span>!</span></div>
     <div id="rinfo">Lobby</div>
     <div id="hint-wrap"><div id="hint"></div></div>
-    <div id="timer-wrap"><div id="timer">–</div></div>
+    <div id="timer">–</div>
   </div>
-  <!-- players -->
-  <div id="players"></div>
-  <!-- canvas -->
-  <div id="mid">
-    <div id="stage">
-      <div id="cv-wrap"><canvas id="cv" width="800" height="500"></canvas></div>
-      <div id="ov"></div>
+  <div id="gbody">
+    <div id="players"></div>
+    <div id="mid">
+      <div id="stage">
+        <div id="cv-wrap"><canvas id="cv" width="800" height="500"></canvas></div>
+        <div id="ov"></div>
+      </div>
+      <div id="tools" class="hide"></div>
     </div>
-    <div id="tools" class="hide"></div>
-  </div>
-  <!-- chat -->
-  <div id="chat">
-    <div id="log"></div>
-    <div id="chat-foot">
-      <input type="text" id="msg" placeholder="Type your guess…" maxlength="60" autocomplete="off">
-      <button id="send">Send</button>
+    <div id="chat">
+      <div id="log"></div>
+      <div id="chat-foot">
+        <input id="msg" type="text" placeholder="Type your guess…" maxlength="60" autocomplete="off">
+        <button id="send">Send</button>
+      </div>
     </div>
   </div>
 </div>
