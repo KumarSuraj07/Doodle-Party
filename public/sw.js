@@ -1,5 +1,5 @@
-const CACHE = "dp-v1";
-const SHELL = ["/", "/manifest.json", "/sw.js"];
+const CACHE = "dp-v4";
+const SHELL = ["/", "/manifest.json"];
 
 self.addEventListener("install", e => {
   self.skipWaiting();
@@ -16,12 +16,14 @@ self.addEventListener("activate", e => {
 
 self.addEventListener("fetch", e => {
   if (e.request.method !== "GET") return;
-  // WebSocket upgrades — skip
   if (e.request.url.startsWith("ws")) return;
   e.respondWith(
     caches.match(e.request).then(cached => {
       const net = fetch(e.request).then(res => {
-        if (res.ok) caches.open(CACHE).then(c => c.put(e.request, res.clone()));
+        if (res.ok) {
+          const clone = res.clone();
+          caches.open(CACHE).then(c => c.put(e.request, clone));
+        }
         return res;
       });
       return cached || net;

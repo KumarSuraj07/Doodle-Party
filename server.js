@@ -12,7 +12,7 @@ const server=http.createServer((q,r)=>{
     r.end(d);
   });
 });
-const wss=new WebSocketServer({server,maxPayload:16384});
+const wss=new WebSocketServer({server,maxPayload:65536});
 const rooms=new Map(); // name -> Set<ws>
 function peers(name,joined){
   const set=rooms.get(name);if(!set)return;
