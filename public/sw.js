@@ -1,4 +1,4 @@
-const CACHE = "dp-v5";
+const CACHE = "dp-v6";
 const SHELL = ["/", "/manifest.json"];
 
 self.addEventListener("install", e => {

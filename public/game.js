@@ -15,6 +15,8 @@ let hist=[],strokeId="",sn=0,known=new Set();
 let word="",tool={c:"#000000",w:6,erase:false,fill:false},drawing=false,buf=[];
 const cv=document.getElementById("cv"),ctx=cv.getContext("2d");
 ctx.lineCap=ctx.lineJoin="round";
+// white background
+ctx.fillStyle="#ffffff";ctx.fillRect(0,0,800,500);
 
 // ── helpers ──
 function logMsg(h,cls){
@@ -62,7 +64,8 @@ $("#go").onclick=async()=>{
   try{R=await connect("dp-"+code);}
   catch(e){$("#go").disabled=false;return $("#lerr").textContent="Couldn't connect.";}
   players=[{id:me.id,name:me.name,av:me.av}];
-  S.hostId=me.id;
+  // only set hostId if WE created the room (no code was typed)
+  if(!typed)S.hostId=me.id;
   $("#lobby").classList.add("hide");
   $("#game").classList.remove("hide");
   resizeCanvas();
@@ -129,7 +132,7 @@ function wire(){
     });
   });
   R.on("undo",()=>{hist.pop();redraw();});
-  R.on("clear",()=>{hist=[];ctx.clearRect(0,0,800,500);});
+  R.on("clear",()=>{hist=[];ctx.fillStyle="#ffffff";ctx.fillRect(0,0,800,500);});
   R.onPeers(ch=>{
     players=ch.peers.map(p=>p.presence).filter(p=>p&&p.id)
       .map(p=>({id:p.id,name:String(p.name||"?").slice(0,14),av:String(p.av||"🙂").slice(0,4)}));
@@ -150,7 +153,14 @@ function wire(){
   R.presence({id:me.id,name:me.name,av:me.av});
 }
 
-const say=(k,n,t)=>R.emit("chat",{k,n,t});
+const say=(k,n,t)=>{
+  R.emit("chat",{k,n,t});
+  // host logs their own broadcasts locally since server won't echo back
+  if(k==="win")logMsg("🎉 <b>"+esc(n)+"</b> guessed it!","win");
+  else if(k==="sys")logMsg(esc(t),"sys");
+  else if(k==="close")logMsg("🔥 <b>"+esc(n)+"</b>: "+esc(t)+" <i>(so close!)</i>","close-msg");
+  else logMsg("<b>"+esc(n)+"</b>: "+esc(t));
+};
 function bcast(){R.emit("state",{...S,left:S.endsAt-Date.now()});render();}
 
 // ── game loop (host only) ──
@@ -173,7 +183,7 @@ function nextTurn(){
   S.drawer=S.order[S.turn];S.phase="choose";S.ok=[];S.hint="";S.reveal="";word="";
   S.endsAt=Date.now()+15000;
   W.opts=[...W.pool].sort(()=>Math.random()-.5).slice(0,3);W.word="";W.shown="";W.h1=0;W.h2=0;
-  R.emit("clear");hist=[];ctx.clearRect(0,0,800,500);
+  R.emit("clear");hist=[];ctx.fillStyle="#ffffff";ctx.fillRect(0,0,800,500);
   bcast();
   R.emit("word",{to:S.drawer,opts:W.opts});
   if(S.drawer===me.id)showOpts(W.opts);
@@ -285,7 +295,7 @@ function floodFill(sx,sy,fillColor){
   ctx.putImageData(img,0,0);
 }
 
-function redraw(){ctx.clearRect(0,0,800,500);hist.forEach(s=>s.segs.forEach(paint));}
+function redraw(){ctx.fillStyle="#ffffff";ctx.fillRect(0,0,800,500);hist.forEach(s=>s.segs.forEach(paint));}
 
 function flush(){
   if(!buf.length)return;
@@ -454,7 +464,7 @@ function render(){
     t.querySelectorAll("[data-w]").forEach(b=>b.onclick=()=>{tool.w=+b.dataset.w;tool.erase=false;render();});
     $("#tfill").onclick=()=>{tool.fill=!tool.fill;tool.erase=false;render();};
     $("#ter").onclick=()=>{tool.erase=!tool.erase;tool.fill=false;render();};
-    $("#tcl").onclick=()=>{R.emit("clear");hist=[];ctx.clearRect(0,0,800,500);};
+    $("#tcl").onclick=()=>{R.emit("clear");hist=[];ctx.fillStyle="#ffffff";ctx.fillRect(0,0,800,500);};
     $("#tun").onclick=()=>{hist.pop();redraw();R.emit("undo");};
   } else {
     t.classList.add("hide");
@@ -468,8 +478,7 @@ function render(){
 // ── timer ──
 setInterval(()=>{
   const l=Math.ceil((S.endsAt-Date.now())/1000);
-  const show=(S.phase==="choose"||S.phase==="reveal")&&l>=0;
-  // hide timer during draw phase (shown via hint) and lobby
+  const show=["choose","draw","reveal"].includes(S.phase)&&l>=0;
   $("#timer").textContent=show?l:"–";
   $("#timer").className=l<=10?"danger":l<=20?"warn":"";
 },250);
